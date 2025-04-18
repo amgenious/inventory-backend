@@ -44,7 +44,6 @@ stockRouter.post('/add-stockxlsx', upload.single('file'), async(req,res)=>{
   
       const insertStmt = DB.prepare(insertSql);
       const checkStmt = DB.prepare(checkSql);
-      console.log("checkstmt",checkStmt)
   
       for (const row of data) {
         let {
