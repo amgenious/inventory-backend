@@ -1,5 +1,5 @@
 import { DB } from "../connect.js";
-import bcrypt from 'bcrypt';
+
 
 export const addStock = async(req,res) => {
     const {

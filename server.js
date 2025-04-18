@@ -13,7 +13,7 @@ import stockRouter from './routes/stock.route.js';
 
 const app = express();
 app.use(cors());
-app.use(bodyParser.json());
+// app.use(bodyParser.json());
 app.use(express.static('public'));
 app.use(express.urlencoded({extended: true}));
 
