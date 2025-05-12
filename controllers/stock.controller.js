@@ -135,3 +135,95 @@ export const updateStock = async(req,res) => {
       res.status(200).json({ message: "Stock updated successfully" });
     });
 }
+export const addOpenBalance = async(req,res) => {
+   res.set('content-type', 'application/json');
+  const {name,location,partnumber,quantity} = req.body;
+   if (!name || !location || !partnumber || !quantity) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+    const sql = 'INSERT INTO openbalance (name,location,partnumber,quantity) VALUES (?, ?, ?, ?)';
+    let newId;
+    const params = [name,location,partnumber,quantity];
+    try {
+      DB.run(sql, params, function (err) {
+        if (err) throw err;
+        newId = this.lastID; //provides the auto increment integer enemy_id
+        res.status(201);
+        let data = { status: 201, message: `New open balance stock saved.` };
+        let content = JSON.stringify(data);
+        res.send(content);
+      });
+    } catch (err) {
+      console.log(err.message);
+      res.status(468);
+      res.send(`{"code":468, "status":"${err.message}"}`);
+    }  
+}
+export const getAllOpenBalances = async(req,res)=>{
+    res.set('content-type', 'application/json');
+    const sql = 'SELECT * FROM openbalance';
+    let data = { openbalance: [] };
+    try {
+      DB.all(sql, [], (err, rows) => {
+        if (err) {
+          throw err; 
+        }
+        rows.forEach((row) => {
+          data.openbalance.push({ id: row.id, 
+            name: row.name, location:row.location,partnumber:row.partnumber,
+          max_stock:row.max_stock,min_stock:row.min_stock,quantity:row.quantity });
+        });
+        let content = JSON.stringify(data);
+        res.send(content);
+      });
+    } catch (err) {
+      console.log(err.message);
+      res.status(467);
+      res.send(`{"code":467, "status":"${err.message}"}`);
+    }  
+}
+export const updateStockQuantity = async (req,res)=>{
+  res.set('content-type', 'application/json');
+  const id = req.params.id
+  const {newquantity} = req.body
+  if (!id) {
+    return res.status(400).json({ message: "Stock uniquename is required" });
+  }
+  if (!newquantity) {
+    return res.status(400).json({ message: "Missing new stock quantity" });
+  }
+   const sql  = 'UPDATE openbalance SET quantity = ? WHERE name = ?';
+    DB.run(sql, [newquantity, id], function (err) {
+    if (err) {
+      console.error('Error updating stock:', err);
+      return res.status(500).json({ message: `Error updating stock: ${err.message}` });
+    }
+
+    if (this.changes === 0) {
+      return res.status(400).json({ message: "Stock quantity update not successful" });
+    }
+
+    res.status(200).json({ message: "Stock quantity updated successfully" });
+  });
+}
+export const addStockHistory = async(req,res) => {
+   res.set('content-type', 'application/json');
+    const {name,prevQuantity,addedQuantity,newQuantity} = req.body;
+    const sql = 'INSERT INTO stockhistory (name,prevQuantity,addedQuantity,newQuantity) VALUES (?, ?, ?, ?)';
+    let newId;
+    const params = [name,prevQuantity,addedQuantity,newQuantity];
+    try {
+      DB.run(sql, params, function (err) {
+        if (err) throw err;
+        newId = this.lastID; //provides the auto increment integer enemy_id
+        res.status(201);
+        let data = { status: 201, message: `New stock history saved.` };
+        let content = JSON.stringify(data);
+        res.send(content);
+      });
+    } catch (err) {
+      console.log(err.message);
+      res.status(468);
+      res.send(`{"code":468, "status":"${err.message}"}`);
+    }  
+}

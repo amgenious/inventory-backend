@@ -64,7 +64,34 @@ let sqlStatements = [
       min_stock INTEGER DEFAULT 0,
       price REAL DEFAULT 0,
       createdAt TEXT DEFAULT CURRENT_TIMESTAMP
-    );`
+    );`,
+    `CREATE TABLE IF NOT EXISTS issues (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      referencenumber TEXT NOT NULL,
+      valuedate TEXT NOT NULL,
+      transtype TEXT NOT NULL,
+      transcode TEXT NOT NULL,
+      remarks TEXT NOT NULL,
+      itemname TEXT NOT NULL,
+      location TEXT NOT NULL,
+      createdAt TEXT DEFAULT CURRENT_TIMESTAMP
+    );`,
+     `CREATE TABLE IF NOT EXISTS openbalance (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      location TEXT NOT NULL,
+      partnumber TEXT NOT NULL,
+      quantity INTERGER DEFAULT 0,
+      createdAt TEXT DEFAULT CURRENT_TIMESTAMP
+    );`,
+    `CREATE TABLE IF NOT EXISTS stockhistory (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    prevQuantity REAL DEFAULT 0,
+    addedQuantity REAL DEFAULT 0,
+    newQuantity REAL DEFAULT 0,
+    createdAt TEXT DEFAULT CURRENT_TIMESTAMP
+    )`
   ];
   sqlStatements.forEach((stmt) => {
     DB.run(stmt, [], (err) => {

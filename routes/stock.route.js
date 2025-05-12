@@ -12,6 +12,10 @@ stockRouter.post('/add-stock',Controller.addStock)
 stockRouter.get('/',Controller.getAllStock)
 stockRouter.delete('/:id',Controller.deleteStock)
 stockRouter.put("/update/:id", Controller.updateStock)
+stockRouter.put('/updateQuantity/:id',Controller.updateStockQuantity)
+stockRouter.post('/addOpenbalance',Controller.addOpenBalance)
+stockRouter.get('/getAllOpenBalance',Controller.getAllOpenBalances)
+stockRouter.post ('/addStockhistory', Controller.addStockHistory)
 
 stockRouter.post('/add-stockxlsx', upload.single('file'), async (req, res) => {
   const filePath = req.file?.path;
