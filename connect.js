@@ -71,9 +71,12 @@ let sqlStatements = [
       valuedate TEXT NOT NULL,
       transtype TEXT NOT NULL,
       transcode TEXT NOT NULL,
+      customer TEXT NOT NULL,
       remarks TEXT NOT NULL,
       itemname TEXT NOT NULL,
+      partnumber TEXT NOT NULL,
       location TEXT NOT NULL,
+      quantity INTEGER DEFAULT 0,
       createdAt TEXT DEFAULT CURRENT_TIMESTAMP
     );`,
      `CREATE TABLE IF NOT EXISTS openbalance (

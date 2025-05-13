@@ -6,7 +6,7 @@ export const addIssues = async (req,res) => {
     let newId;
     try {
       DB.run(sql, [req.body.referencenumber, req.body.valuedate,
-      req.body.transtype,req.body.transcode,req.body,customer,req.body.remarks,
+      req.body.transtype,req.body.transcode,req.body.customer,req.body.remarks,
       req.body.itemname,req.body.partnumber,req.body.location,req.body.quantity], function (err) {
         if (err) throw err;
         newId = this.lastID; //provides the auto increment integer enemy_id

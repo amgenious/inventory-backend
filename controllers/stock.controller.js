@@ -186,12 +186,12 @@ export const updateStockQuantity = async (req,res)=>{
   res.set('content-type', 'application/json');
   const id = req.params.id
   const {newquantity} = req.body
-  if (!id) {
-    return res.status(400).json({ message: "Stock uniquename is required" });
-  }
-  if (!newquantity) {
-    return res.status(400).json({ message: "Missing new stock quantity" });
-  }
+  // if (!id) {
+  //   return res.status(400).json({ message: "Stock uniquename is required" });
+  // }
+  // if (!newquantity) {
+  //   return res.status(400).json({ message: "Missing new stock quantity" });
+  // }
    const sql  = 'UPDATE openbalance SET quantity = ? WHERE name = ?';
     DB.run(sql, [newquantity, id], function (err) {
     if (err) {
