@@ -35,7 +35,7 @@ export const getAllIssues = async (req,res) => {
           data.issues.push({ id: row.id, referencenumber: row.referencenumber, 
            valuedate : row.valuedate, transtype:row.transtype,transcode:row.transcode,
            customer:row.customer,remarks:row.remarks,itemname:row.itemname,partnumber:row.partnumber,
-           quantity:row.quantity 
+           quantity:row.quantity,location:row.location 
         });
         });
         let content = JSON.stringify(data);
