@@ -96,9 +96,6 @@ export const updateUser = async(req,res) => {
     if (isNaN(id)) {
       return res.status(400).json({ message: "Invalid user ID" });
     }
-    if (!name || !email || !role) {
-      return res.status(400).json({ message: "Missing user name or email or role" });
-    }
     const sql  = 'UPDATE users SET name = ?, email = ?, role = ? WHERE id = ?';
     DB.run(sql, [name,email,role, id], function (err) {
       if (err) {
@@ -117,17 +114,12 @@ export const updateUserpassword = async(req,res) => {
     res.set('content-type', 'application/json');
     const id = parseInt(req.params.id, 10);
     const { pass } = req.body;
-    if (isNaN(id)) {
-      return res.status(400).json({ message: "Invalid user ID" });
-    }
-    if (!pass) {
-      return res.status(400).json({ message: "Missing user password" });
-    }
+
     const salt = await bcrypt.genSalt(10);
     const password = await bcrypt.hash(pass, salt);
 
     const sql  = 'UPDATE users SET password = ? WHERE id = ?';
-    DB.run(sql, [password], function (err) {
+    DB.run(sql, [password,id], function (err) {
       if (err) {
         console.error('Error updating user password:', err);
         return res.status(500).json({ message: `Error updating user password: ${err.message}` });
