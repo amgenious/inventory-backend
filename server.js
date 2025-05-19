@@ -11,6 +11,7 @@ import supplierRouter from './routes/supplier.route.js';
 import customerRouter from './routes/customer.route.js';
 import stockRouter from './routes/stock.route.js';
 import issueRouter from './routes/issues.route.js';
+import receiptRouter from './routes/receipt.route.js';
 
 const app = express();
 app.use(cors());
@@ -34,6 +35,7 @@ app.use('/api/v1/supplier/', supplierRouter);
 app.use('/api/v1/customer/', customerRouter);
 app.use('/api/v1/stock/', stockRouter);
 app.use('/api/v1/issue/', issueRouter)
+app.use('/api/v1/receipt/', receiptRouter)
 
 app.listen(8000,() =>{
     console.log('Started on http://localhost:8000')

@@ -79,6 +79,22 @@ let sqlStatements = [
       quantity INTEGER DEFAULT 0,
       createdAt TEXT DEFAULT CURRENT_TIMESTAMP
     );`,
+    `CREATE TABLE IF NOT EXISTS receipt (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      referencenumber TEXT NOT NULL,
+      valuedate TEXT NOT NULL,
+      transtype TEXT NOT NULL,
+      transcode TEXT NOT NULL,
+      invoicenumber TEXT NOT NULL,
+      invoicedate TEXT NOT NULL,
+      supplier TEXT NOT NULL,
+      remarks TEXT NOT NULL,
+      itemname TEXT NOT NULL,
+      partnumber TEXT NOT NULL,
+      location TEXT NOT NULL,
+      quantity INTEGER DEFAULT 0,
+      createdAt TEXT DEFAULT CURRENT_TIMESTAMP
+    );`,
      `CREATE TABLE IF NOT EXISTS openbalance (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
