@@ -47,3 +47,49 @@ export const getAllIssues = async (req,res) => {
       res.send(`{"code":467, "status":"${err.message}"}`);
     }
 }
+
+export const searchAllIssue = async(req,res) => {
+  const query = req.query.query;
+  
+  const sql = 'SELECT * FROM issues WHERE referencenumber = ? LIMIT 1';
+
+  DB.get(sql, [query], (err, row) => {
+    if (err) {
+      console.error('Error searching issue:', err.message);
+      return res.status(500).json({ message: `Error searching issue: ${err.message}` });
+    }
+
+    if (!row) {
+      return res.status(404).json({ message: 'Such reference does not exist' });
+    }
+
+    return res.status(200).json({ searchedIssue: row });
+  });
+}
+
+export const updateIssue = async(req,res) => {
+  const id = parseInt(req.params.id, 10);
+  const { transtype,transcode,customer,remarks } = req.body;
+  if (!id) {
+    return res.status(400).json({ message: "Issue ID is required" });
+  }
+
+  if (!transtype || !transcode) {
+    return res.status(400).json({ message: "Missing issue transtype or transcode" });
+  }
+
+  const sql  = 'UPDATE issues SET transtype = ?, transcode = ?, customer = ?, remarks = ? WHERE id = ?';
+  DB.run(sql, [transtype, transcode,customer,remarks, id], function (err) {
+    if (err) {
+      console.error('Error updating issue:', err);
+      return res.status(500).json({ message: `Error updating issue: ${err.message}` });
+    }
+
+    if (this.changes === 0) {
+      return res.status(400).json({ message: "Issue update not successful" });
+    }
+
+    res.status(200).json({ message: "Issue updated successfully" });
+  });
+
+}
