@@ -47,3 +47,49 @@ export const getAllReceipt = async (req,res) => {
       res.send(`{"code":467, "status":"${err.message}"}`);
     }
 }
+
+export const searchAllReceipt = async(req,res) => {
+  const query = req.query.query;
+  
+  const sql = 'SELECT * FROM receipt WHERE referencenumber = ? LIMIT 1';
+
+  DB.get(sql, [query], (err, row) => {
+    if (err) {
+      console.error('Error searching receipt:', err.message);
+      return res.status(500).json({ message: `Error searching receipt: ${err.message}` });
+    }
+
+    if (!row) {
+      return res.status(404).json({ message: 'Such reference does not exist' });
+    }
+
+    return res.status(200).json({ searchedReceipt: row });
+  });
+}
+
+export const updateReceipt = async(req,res) => {
+  const id = parseInt(req.params.id, 10);
+  const {invoicenumber, transtype,transcode,supplier,remarks } = req.body;
+  if (!id) {
+    return res.status(400).json({ message: "Receipt ID is required" });
+  }
+
+  if (!transtype || !transcode) {
+    return res.status(400).json({ message: "Missing receipt transtype or transcode" });
+  }
+
+  const sql  = 'UPDATE receipt SET invoicenumber = ?, transtype = ?, transcode = ?, supplier = ?, remarks = ? WHERE id = ?';
+  DB.run(sql, [invoicenumber,transtype, transcode,supplier,remarks, id], function (err) {
+    if (err) {
+      console.error('Error updating receipt:', err);
+      return res.status(500).json({ message: `Error updating receipt: ${err.message}` });
+    }
+
+    if (this.changes === 0) {
+      return res.status(400).json({ message: "Receipt update not successful" });
+    }
+
+    res.status(200).json({ message: "Receipt updated successfully" });
+  });
+
+}
