@@ -227,7 +227,6 @@ export const addStockHistory = async(req,res) => {
       res.send(`{"code":468, "status":"${err.message}"}`);
     }  
 }
-
 export const searchOpenabalance = async(req,res) => {
   const { name, quantity, partnumber, location,startDate, endDate } = req.query;
   const conditions = [];
@@ -265,9 +264,83 @@ if (startDate && endDate) {
     }
 
     if (!rows || rows.length === 0) {
-      return res.status(404).json({ message: "Such reference does not exist" });
+      return res.status(404).json({searchStock:[], message: "Such reference does not exist" });
     }
 
     return res.status(200).json({ searchedStock: rows });
+  });
+}
+export const searchStock = async(req,res) => {
+  const { name, description, partnumber, location,startDate, endDate, category } = req.query;
+  const conditions = [];
+  const params = [];
+
+  if (name) {
+    conditions.push('name = ?');
+    params.push(name);
+  }
+  if (description) {
+    conditions.push('description LIKE ?');
+    params.push(`%${description}%`);
+  }
+  if (partnumber) {
+    conditions.push('partnumber = ?');
+    params.push(partnumber);
+  }
+  if (category) {
+    conditions.push('category = ?');
+    params.push(category);
+  }
+  if (location) {
+    conditions.push('location = ?');
+    params.push(location);
+  }
+if (startDate && endDate) {
+  conditions.push('DATE(createdAt) BETWEEN DATE(?) AND DATE(?)');
+  params.push(startDate, endDate);
+}
+    if (conditions.length === 0) {
+    return res.status(400).json({ message: "At least one search parameter is required." });
+  }
+
+    const sql = `SELECT * FROM stock WHERE ${conditions.join(' AND ')}`;
+      DB.all(sql, params, (err, rows) => {
+    if (err) {
+      console.error("Search error:", err.message);
+      return res.status(500).json({ message: `Error searching stock: ${err.message}` });
+    }
+
+    if (!rows || rows.length === 0) {
+      return res.status(404).json({searchStock:[], message: "Such reference does not exist" });
+    }
+
+    return res.status(200).json({ searchedStock: rows });
+  });
+}
+export const searchStockHistory = async(req,res) => {
+  const { name } = req.query;
+  const conditions = [];
+  const params = [];
+
+  if (name) {
+    conditions.push('name = ?');
+    params.push(name);
+  }
+    if (conditions.length === 0) {
+    return res.status(400).json({ message: "At least one search parameter is required." });
+  }
+
+    const sql = `SELECT * FROM stockhistory WHERE ${conditions.join(' AND ')}`;
+      DB.all(sql, params, (err, rows) => {
+    if (err) {
+      console.error("Search error:", err.message);
+      return res.status(500).json({ message: `Error searching stock: ${err.message}` });
+    }
+
+    if (!rows || rows.length === 0) {
+      return res.status(404).json({searchStockHistory:[], message: "Such reference does not exist" });
+    }
+
+    return res.status(200).json({ searchedStockHistory: rows });
   });
 }

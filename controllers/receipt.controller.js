@@ -95,13 +95,17 @@ export const updateReceipt = async(req,res) => {
 }
 
 export const searchReceipt = async(req,res) => {
-  const { referencenumber, partnumber,invoicenumber, supplier, startDate, endDate } = req.query;
+  const { referencenumber,itemname, partnumber,invoicenumber, supplier, startDate, endDate } = req.query;
   const conditions = [];
   const params = [];  
 
   if (referencenumber) {
     conditions.push('referencenumber = ?');
     params.push(referencenumber);
+  }
+  if (itemname) {
+    conditions.push('itemname = ?');
+    params.push(itemname);
   }
   if (supplier) {
     conditions.push('supplier = ?');
@@ -130,7 +134,7 @@ export const searchReceipt = async(req,res) => {
     }
 
     if (!rows || rows.length === 0) {
-      return res.status(404).json({ message: "Such reference does not exist" });
+      return res.status(404).json({searchedReceipt:[], message: "Such reference does not exist" });
     }
 
     return res.status(200).json({ searchedReceipt: rows });
