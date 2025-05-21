@@ -15,6 +15,7 @@ stockRouter.put("/update/:id", Controller.updateStock)
 stockRouter.put('/updateQuantity/:id',Controller.updateStockQuantity)
 stockRouter.post('/addOpenbalance',Controller.addOpenBalance)
 stockRouter.get('/getAllOpenBalance',Controller.getAllOpenBalances)
+stockRouter.get('/search',Controller.searchOpenabalance)
 stockRouter.post ('/addStockhistory', Controller.addStockHistory)
 
 stockRouter.post('/add-stockxlsx', upload.single('file'), async (req, res) => {

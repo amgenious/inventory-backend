@@ -227,3 +227,47 @@ export const addStockHistory = async(req,res) => {
       res.send(`{"code":468, "status":"${err.message}"}`);
     }  
 }
+
+export const searchOpenabalance = async(req,res) => {
+  const { name, quantity, partnumber, location,startDate, endDate } = req.query;
+  const conditions = [];
+  const params = [];
+
+  if (name) {
+    conditions.push('name = ?');
+    params.push(name);
+  }
+  if (quantity) {
+    conditions.push('quantity = ?');
+    params.push(quantity);
+  }
+  if (partnumber) {
+    conditions.push('partnumber = ?');
+    params.push(partnumber);
+  }
+  if (location) {
+    conditions.push('location = ?');
+    params.push(location);
+  }
+if (startDate && endDate) {
+  conditions.push('DATE(createdAt) BETWEEN DATE(?) AND DATE(?)');
+  params.push(startDate, endDate);
+}
+    if (conditions.length === 0) {
+    return res.status(400).json({ message: "At least one search parameter is required." });
+  }
+
+    const sql = `SELECT * FROM openbalance WHERE ${conditions.join(' AND ')}`;
+      DB.all(sql, params, (err, rows) => {
+    if (err) {
+      console.error("Search error:", err.message);
+      return res.status(500).json({ message: `Error searching stock: ${err.message}` });
+    }
+
+    if (!rows || rows.length === 0) {
+      return res.status(404).json({ message: "Such reference does not exist" });
+    }
+
+    return res.status(200).json({ searchedStock: rows });
+  });
+}
