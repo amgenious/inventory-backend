@@ -135,6 +135,31 @@ export const updateStock = async(req,res) => {
       res.status(200).json({ message: "Stock updated successfully" });
     });
 }
+export const updateOpenBalanceStock = async(req,res) => {
+    res.set('content-type', 'application/json');
+    const id = parseInt(req.params.id, 10);
+    const {  name,
+        location,
+        quantity,
+        partnumber
+       } = req.body;
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid stock ID" });
+    }
+    const sql  = `UPDATE openbalance SET name = ?, location = ?, quantity = ?, partnumber = ?  WHERE id = ?`;
+    DB.run(sql, [name,location,quantity,partnumber, id], function (err) {
+      if (err) {
+        console.error('Error updating openbalance:', err);
+        return res.status(500).json({ message: `Error updating openbalance: ${err.message}` });
+      }
+  
+      if (this.changes === 0) {
+        return res.status(400).json({ message: "Open balance update not successful" });
+      }
+  
+      res.status(200).json({ message: "Open balance updated successfully" });
+    });
+}
 export const addOpenBalance = async(req,res) => {
    res.set('content-type', 'application/json');
   const {name,location,partnumber,quantity} = req.body;
@@ -233,8 +258,8 @@ export const searchOpenabalance = async(req,res) => {
   const params = [];
 
   if (name) {
-    conditions.push('name = ?');
-    params.push(name);
+    conditions.push('name LIKE ?');
+    params.push(`%${name}%`);
   }
   if (quantity) {
     conditions.push('quantity = ?');
@@ -264,7 +289,7 @@ if (startDate && endDate) {
     }
 
     if (!rows || rows.length === 0) {
-      return res.status(404).json({searchStock:[], message: "Such reference does not exist" });
+      return res.status(404).json({searchedStock:[], message: "Such reference does not exist" });
     }
 
     return res.status(200).json({ searchedStock: rows });
@@ -276,8 +301,8 @@ export const searchStock = async(req,res) => {
   const params = [];
 
   if (name) {
-    conditions.push('name = ?');
-    params.push(name);
+    conditions.push('name LIKE ?');
+    params.push(`%${name}%`);
   }
   if (description) {
     conditions.push('description LIKE ?');
@@ -311,7 +336,7 @@ if (startDate && endDate) {
     }
 
     if (!rows || rows.length === 0) {
-      return res.status(404).json({searchStock:[], message: "Such reference does not exist" });
+      return res.status(404).json({searchedStock:[], message: "Such reference does not exist" });
     }
 
     return res.status(200).json({ searchedStock: rows });
@@ -338,7 +363,7 @@ export const searchStockHistory = async(req,res) => {
     }
 
     if (!rows || rows.length === 0) {
-      return res.status(404).json({searchStockHistory:[], message: "Such reference does not exist" });
+      return res.status(404).json({searchedStockHistory:[], message: "Such reference does not exist" });
     }
 
     return res.status(200).json({ searchedStockHistory: rows });
