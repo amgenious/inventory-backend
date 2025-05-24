@@ -51,9 +51,9 @@ export const getAllReceipt = async (req,res) => {
 export const searchAllReceipt = async(req,res) => {
   const query = req.query.query;
   
-  const sql = 'SELECT * FROM receipt WHERE referencenumber = ? LIMIT 1';
+  const sql = 'SELECT * FROM receipt WHERE referencenumber = ?';
 
-  DB.get(sql, [query], (err, row) => {
+  DB.all(sql, [query], (err, row) => {
     if (err) {
       console.error('Error searching receipt:', err.message);
       return res.status(500).json({ message: `Error searching receipt: ${err.message}` });

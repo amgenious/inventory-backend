@@ -51,9 +51,9 @@ export const getAllIssues = async (req,res) => {
 export const searchAllIssue = async(req,res) => {
   const query = req.query.query;
   
-  const sql = 'SELECT * FROM issues WHERE referencenumber = ? LIMIT 1';
+  const sql = 'SELECT * FROM issues WHERE referencenumber = ?';
 
-  DB.get(sql, [query], (err, row) => {
+  DB.all(sql, [query], (err, row) => {
     if (err) {
       console.error('Error searching issue:', err.message);
       return res.status(500).json({ message: `Error searching issue: ${err.message}` });
