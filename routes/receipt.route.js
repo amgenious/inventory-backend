@@ -4,6 +4,7 @@ import * as Controller from '../controllers/receipt.controller.js'
 import multer from 'multer';
 import xlsx from 'xlsx';
 import fs from 'fs';
+import { DB } from "../connect.js";
 
 const upload = multer({ dest: 'uploads/' });
 
@@ -18,6 +19,11 @@ receiptRouter.post('/add-receiptxlsx', upload.single('file'),async(req,res)=>{
     if(!filePath){
         return res.status(400).json({message: 'No file uploaded'})
     }
+    const normalizePartNumber = (pn) => {
+    if (typeof pn === 'number') return pn.toString().split('.')[0];
+    if (typeof pn === 'string') return pn.trim().replace(/\.0+$/, '');
+    return '';
+  };
     try{
         const workbook = xlsx.readFile(filePath);
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -43,6 +49,28 @@ receiptRouter.post('/add-receiptxlsx', upload.single('file'),async(req,res)=>{
         if (remaining === 0) finalizeAndRespond();
         continue;
       }
+    const normalizedPartNumber = normalizePartNumber(referencenumber);
+    insertStmt.run([
+      normalizedPartNumber,
+      valuedate || '',
+      transtype || '',
+      transcode || '',
+      invoicenumber || '',
+      invoicedate || '',
+      supplier || '',
+      remarks || '',
+      itemname,
+      partnumber,
+      location,
+      quantity || 0
+    ], (err) => {
+      if (err) {
+        console.error('Insert error:', err);
+      }
+
+      remaining--;
+      if (remaining === 0) finalizeAndRespond();
+    });
         }
         function finalizeAndRespond() {
               insertStmt.finalize();

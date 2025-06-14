@@ -4,6 +4,7 @@ import * as Controller from '../controllers/issue.controller.js'
 import multer from 'multer';
 import xlsx from 'xlsx';
 import fs from 'fs';
+import { DB } from "../connect.js";
 
 const upload = multer({ dest: 'uploads/' });
 
@@ -18,11 +19,15 @@ issueRouter.post('/add-issuexlsx', upload.single('file'),async(req,res)=>{
     if(!filePath){
         return res.status(400).json({message: 'No file uploaded'})
     }
+    const normalizePartNumber = (pn) => {
+    if (typeof pn === 'number') return pn.toString().split('.')[0];
+    if (typeof pn === 'string') return pn.trim().replace(/\.0+$/, '');
+    return '';
+  };
     try{
         const workbook = xlsx.readFile(filePath);
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
         const rows = xlsx.utils.sheet_to_json(sheet);  
-         
         const sql = 'INSERT INTO issues(referencenumber,valuedate,transtype,transcode,customer,remarks,itemname,partnumber,location,quantity) VALUES (?,?,?,?,?,?,?,?,?,?)';
         const insertStmt = DB.prepare(sql);
 
@@ -43,15 +48,37 @@ issueRouter.post('/add-issuexlsx', upload.single('file'),async(req,res)=>{
         if (remaining === 0) finalizeAndRespond();
         continue;
       }
+        const normalizedPartNumber = normalizePartNumber(referencenumber);
+    insertStmt.run([
+      normalizedPartNumber,
+      valuedate || '',
+      transtype || '',
+      transcode || '',
+      customer || '',
+      remarks || '',
+      itemname,
+      partnumber,
+      location,
+      quantity || 0
+    ], (err) => {
+      if (err) {
+        console.error('Insert error:', err);
+      }
+
+      remaining--;
+      if (remaining === 0) finalizeAndRespond();
+    });
         }
         function finalizeAndRespond() {
-              insertStmt.finalize();
-              fs.unlinkSync(filePath);
-              res.status(200).json({ message: 'Upload and import completed successfully' });
-    }
+            insertStmt.finalize();
+            fs.unlinkSync(filePath);
+            res.status(200).json({ message: 'Upload and import completed successfully' });
+        }
     }catch(error){
     console.error('Fatal error:', error);
     res.status(500).json({ message: 'Error processing file', error: error.message });
+    }finally{
+        console.log("Ended")
     }
 })
 
