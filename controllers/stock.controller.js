@@ -1,52 +1,69 @@
 import { DB } from "../connect.js";
 
+export const addStock = async (req, res) => {
+  const {
+    name,
+    description,
+    category,
+    location,
+    measurement,
+    partnumber,
+    max_stock,
+    min_stock,
+    price
+  } = req.body;
 
-export const addStock = async(req,res) => {
-    const {
-        name,
-        description,
-        category,
-        location,
-        measurement,
-        partnumber,
-        max_stock,
-        min_stock,
-        price
-      } = req.body;
+  if (!name || !category || !location || !partnumber) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
 
-      if (!name || !category || !location || !partnumber) {
-        return res.status(400).json({ message: "Missing required fields" });
-      }
-      const sql = `
+  // First check if partnumber already exists
+  const checkSql = 'SELECT * FROM stock WHERE partnumber = ?';
+  DB.get(checkSql, [partnumber], (err, row) => {
+    if (err) {
+      console.error('Error checking for duplicate partnumber:', err);
+      return res.status(500).json({ message: `Database error: ${err.message}` });
+    }
+
+    if (row) {
+      // Partnumber already exists
+      return res.status(409).json({ message: 'Part number already exists. Stock not added.' });
+    }
+
+    // Continue with insertion if not duplicate
+    const insertSql = `
       INSERT INTO stock (
-        name,description, category, location, measurement, partnumber,
+        name, description, category, location, measurement, partnumber,
         max_stock, min_stock, price
       )
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const params = [
-        name,
-        description,
-        category,
-        location,
-        measurement || '',
-        partnumber,
-        max_stock || 0,
-        min_stock || 0,
-        price || 0
-      ];
-      DB.run(sql, params, function (err) {
-        if (err) {
-          console.error('Error inserting stock:', err);
-          return res.status(500).json({ message: `Error creating stock: ${err.message}` });
-        }
-    
-        res.status(201).json({
-          message: "Stock created successfully",
-          stockId: this.lastID
-        });
+      name,
+      description,
+      category,
+      location,
+      measurement || '',
+      partnumber,
+      max_stock || 0,
+      min_stock || 0,
+      price || 0
+    ];
+
+    DB.run(insertSql, params, function (err) {
+      if (err) {
+        console.error('Error inserting stock:', err);
+        return res.status(500).json({ message: `Error creating stock: ${err.message}` });
+      }
+
+      res.status(201).json({
+        message: "Stock created successfully",
+        stockId: this.lastID
       });
-}
+    });
+  });
+};
+
 export const getAllStock = async(req,res) => {
     res.set('content-type', 'application/json');
     const sql = 'SELECT * FROM stock';
