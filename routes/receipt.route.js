@@ -32,51 +32,66 @@ receiptRouter.post('/add-receiptxlsx', upload.single('file'),async(req,res)=>{
         const sql = 'INSERT INTO receipt(referencenumber,valuedate,transtype,transcode,invoicenumber,invoicedate,supplier,remarks,itemname,partnumber,location,quantity) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)';
         const insertStmt = DB.prepare(sql);
 
-         let remaining = rows.length;
-            if (remaining === 0) {
+            if (rows.length === 0) {
               insertStmt.finalize();
               fs.unlinkSync(filePath);
               return res.status(400).json({ message: 'No data found in Excel file' });
             }
-        for (const row of rows){
-            let {
-                referencenumber,
-                valuedate,transtype,transcode,invoicenumber,invoicedate,supplier,
-                remarks,itemname,partnumber,location,quantity
-            } = row;
-        if (!referencenumber || !itemname  || !location || !partnumber) {
-        remaining--;
-        if (remaining === 0) finalizeAndRespond();
-        continue;
-      }
-    const normalizedPartNumber = normalizePartNumber(referencenumber);
-    insertStmt.run([
-      normalizedPartNumber,
-      valuedate || '',
-      transtype || '',
-      transcode || '',
-      invoicenumber || '',
-      invoicedate || '',
-      supplier || '',
-      remarks || '',
-      itemname,
-      partnumber,
-      location,
-      quantity || 0
-    ], (err) => {
-      if (err) {
-        console.error('Insert error:', err);
-      }
+      const handleRow = (row) => {
+      return new Promise((resolve, reject) => {
+        let {
+          referencenumber,
+          valuedate, transtype, transcode, invoicenumber,invoicedate,supplier,
+          remarks, itemname, partnumber, location, quantity
+        } = row;
 
-      remaining--;
-      if (remaining === 0) finalizeAndRespond();
-    });
-        }
-        function finalizeAndRespond() {
-              insertStmt.finalize();
-              fs.unlinkSync(filePath);
-              res.status(200).json({ message: 'Upload and import completed successfully' });
-    }
+        if (!referencenumber || !itemname || !location || !partnumber) return resolve();
+
+        const normalizedRef = normalizePartNumber(referencenumber);
+        const normalizedRefI = normalizePartNumber(invoicenumber);
+        const qty = parseFloat(quantity) || 0;
+
+        insertStmt.run([
+          normalizedRef, valuedate || '', transtype || '', transcode || '',normalizedRefI||'',invoicedate || '',
+          supplier || '', remarks || '', itemname, partnumber, location, qty
+        ], (err) => {
+          if (err) return reject(err);
+
+          // 1. Get current quantity from openbalance
+          DB.get(`SELECT quantity FROM openbalance WHERE name LIKE ?`, [itemname], (err, row) => {
+            if (err) return reject(err);
+
+            const prevQuantity = row?.quantity ?? 0;
+            const newQuantity = prevQuantity + qty;
+
+            // 2. Insert into stockhistory
+            DB.run(`
+              INSERT INTO stockhistory (name, prevQuantity, addedQuantity, newQuantity)
+              VALUES (?, ?, ?, ?)
+            `, [itemname, prevQuantity, qty, newQuantity], (err) => {
+              if (err) return reject(err);
+
+              // 3. Update openbalance
+              DB.run(`UPDATE openbalance SET quantity = ? WHERE name = ?`, [newQuantity, itemname], (err) => {
+                if (err) return reject(err);
+
+                // 4. Update stock
+                DB.run(`UPDATE stock SET quantity = ? WHERE name = ?`, [newQuantity, itemname], (err) => {
+                  if (err) return reject(err);
+                  resolve();
+                });
+              });
+            });
+          });
+        });
+      });
+    };
+     // Process all rows in parallel and wait for completion
+       await Promise.all(rows.map(handleRow));
+   
+       insertStmt.finalize();
+       fs.unlinkSync(filePath);
+       res.status(200).json({ message: 'Upload and update completed successfully' });
     }catch(error){
     console.error('Fatal error:', error);
     res.status(500).json({ message: 'Error processing file', error: error.message });

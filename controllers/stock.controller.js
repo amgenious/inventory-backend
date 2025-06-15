@@ -234,7 +234,7 @@ export const updateStockQuantity = async (req,res)=>{
   // if (!newquantity) {
   //   return res.status(400).json({ message: "Missing new stock quantity" });
   // }
-   const sql  = 'UPDATE openbalance SET quantity = ? WHERE name = ?';
+   const sql  = 'UPDATE stock SET quantity = ? WHERE name = ?';
     DB.run(sql, [newquantity, id], function (err) {
     if (err) {
       console.error('Error updating stock:', err);
