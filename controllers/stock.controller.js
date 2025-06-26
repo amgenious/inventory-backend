@@ -120,6 +120,32 @@ export const deleteStock = async(req,res) => {
       res.send(`{"code":468, "status":"${err.message}"}`);
     }
 }
+export const deleteOpenBalance = async(req,res) => {
+    res.set('content-type', 'application/json');
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid stock ID" });
+    }
+    const sql = 'DELETE FROM openbalance WHERE id=?';
+    try {
+      DB.run(sql, [id], function (err) {
+        if (err) throw err;
+        if (this.changes === 1) {
+          //one item deleted
+          res.status(200);
+          res.send(`{"message":"Openbalance item ${req.query.id} was removed from list."}`);
+        } else {
+          //no delete done
+          res.status(200);
+          res.send(`{"message":"No operation needed."}`);
+        }
+      });
+    } catch (err) {
+      console.log(err.message);
+      res.status(468);
+      res.send(`{"code":468, "status":"${err.message}"}`);
+    }
+}
 export const updateStock = async(req,res) => {
     res.set('content-type', 'application/json');
     const id = parseInt(req.params.id, 10);
