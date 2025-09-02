@@ -276,10 +276,10 @@ export const updateStockQuantity = async (req,res)=>{
 }
 export const addStockHistory = async(req,res) => {
    res.set('content-type', 'application/json');
-    const {name,prevQuantity,addedQuantity,newQuantity} = req.body;
-    const sql = 'INSERT INTO stockhistory (name,prevQuantity,addedQuantity,newQuantity) VALUES (?, ?, ?, ?)';
+    const {name,prevQuantity,Issue, Receipt,newQuantity} = req.body;
+    const sql = 'INSERT INTO stockhistory (name,prevQuantity,Issue,Receipt,newQuantity) VALUES (?, ?, ?, ?, ?)';
     let newId;
-    const params = [name,prevQuantity,addedQuantity,newQuantity];
+    const params = [name,prevQuantity,Issue,Receipt,newQuantity];
     try {
       DB.run(sql, params, function (err) {
         if (err) throw err;
