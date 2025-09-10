@@ -63,6 +63,7 @@ let sqlStatements = [
       max_stock INTEGER DEFAULT 0,
       min_stock INTEGER DEFAULT 0,
       price REAL DEFAULT 0,
+      quantity INTEGER DEFAULT 0,
       createdAt TEXT DEFAULT CURRENT_TIMESTAMP
     );`,
     `CREATE TABLE IF NOT EXISTS issues (

@@ -94,6 +94,37 @@ export const getAllStock = async(req,res) => {
       res.send(`{"code":467, "status":"${err.message}"}`);
     }
 }
+export const getAllStockwithBalance = async(req,res) => {
+    res.set('content-type', 'application/json');
+    const sql = 'SELECT * FROM stock WHERE quantity > 0';
+    let data = { stock: [] };
+    try {
+      DB.all(sql, [], (err, rows) => {
+        if (err) {
+          throw err; 
+        }
+        rows.forEach((row) => {
+          data.stock.push({ id: row.id, 
+            name: row.name,
+            description:row.description, 
+            category: row.category,
+            location:row.location,
+            measurement:row.measurement,
+            partnumber:row.partnumber,
+            max_stock:row.max_stock,
+            min_stock:row.min_stock, 
+            quantity:row.quantity,
+            price: row.price, });
+        });
+        let content = JSON.stringify(data);
+        res.send(content);
+      });
+    } catch (err) {
+      console.log(err.message);
+      res.status(467);
+      res.send(`{"code":467, "status":"${err.message}"}`);
+    }
+}
 export const deleteStock = async(req,res) => {
     res.set('content-type', 'application/json');
     const id = parseInt(req.params.id, 10);
@@ -252,7 +283,7 @@ export const getAllOpenBalances = async(req,res)=>{
 }
 export const updateStockQuantity = async (req,res)=>{
   res.set('content-type', 'application/json');
-  const id = req.params.id
+  const name = req.params.name
   const {newquantity} = req.body
   // if (!id) {
   //   return res.status(400).json({ message: "Stock uniquename is required" });
@@ -261,7 +292,7 @@ export const updateStockQuantity = async (req,res)=>{
   //   return res.status(400).json({ message: "Missing new stock quantity" });
   // }
    const sql  = 'UPDATE stock SET quantity = ? WHERE name = ?';
-    DB.run(sql, [newquantity, id], function (err) {
+    DB.run(sql, [newquantity, name], function (err) {
     if (err) {
       console.error('Error updating stock:', err);
       return res.status(500).json({ message: `Error updating stock: ${err.message}` });

@@ -69,17 +69,18 @@ export const searchAllIssue = async(req,res) => {
 
 export const updateIssue = async(req,res) => {
   const id = parseInt(req.params.id, 10);
-  const { transtype,transcode,customer,remarks } = req.body;
-  if (!id) {
-    return res.status(400).json({ message: "Issue ID is required" });
-  }
+  // const { transtype,transcode,customer,remarks } = req.body;
+  const { quantity } = req.body;
+  // if (!id) {
+  //   return res.status(400).json({ message: "Issue ID is required" });
+  // }
 
-  if (!transtype || !transcode) {
-    return res.status(400).json({ message: "Missing issue transtype or transcode" });
-  }
+  // if (!transtype || !transcode) {
+  //   return res.status(400).json({ message: "Missing issue transtype or transcode" });
+  // }
 
-  const sql  = 'UPDATE issues SET transtype = ?, transcode = ?, customer = ?, remarks = ? WHERE id = ?';
-  DB.run(sql, [transtype, transcode,customer,remarks, id], function (err) {
+  const sql  = 'UPDATE issues SET quantity = ? WHERE id = ?';
+  DB.run(sql, [quantity, id], function (err) {
     if (err) {
       console.error('Error updating issue:', err);
       return res.status(500).json({ message: `Error updating issue: ${err.message}` });
