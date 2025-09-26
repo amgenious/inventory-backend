@@ -102,6 +102,7 @@ let sqlStatements = [
       location TEXT NOT NULL,
       partnumber TEXT NOT NULL,
       quantity INTERGER DEFAULT 0,
+      category TEXT NOT NULL,
       createdAt TEXT DEFAULT CURRENT_TIMESTAMP
     );`,
     `CREATE TABLE IF NOT EXISTS stockhistory (

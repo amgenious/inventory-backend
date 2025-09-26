@@ -11,6 +11,7 @@ const upload = multer({ dest: 'uploads/' });
 stockRouter.post('/add-stock',Controller.addStock)
 stockRouter.get('/',Controller.getAllStock)
 stockRouter.get('/stockwithbalance',Controller.getAllStockwithBalance)
+stockRouter.get('/stockwithoutbalance',Controller.getAllStockwithoutBalance)
 stockRouter.delete('/:id',Controller.deleteStock)
 stockRouter.delete('/deleteopenbalance/:id',Controller.deleteOpenBalance)
 stockRouter.put("/update/:id", Controller.updateStock)

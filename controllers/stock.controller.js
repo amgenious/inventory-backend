@@ -94,6 +94,37 @@ export const getAllStock = async(req,res) => {
       res.send(`{"code":467, "status":"${err.message}"}`);
     }
 }
+export const getAllStockwithoutBalance = async(req,res) => {
+    res.set('content-type', 'application/json');
+    const sql = 'SELECT * FROM stock WHERE quantity < 0';
+    let data = { stock: [] };
+    try {
+      DB.all(sql, [], (err, rows) => {
+        if (err) {
+          throw err; 
+        }
+        rows.forEach((row) => {
+          data.stock.push({ id: row.id, 
+            name: row.name,
+            description:row.description, 
+            category: row.category,
+            location:row.location,
+            measurement:row.measurement,
+            partnumber:row.partnumber,
+            max_stock:row.max_stock,
+            min_stock:row.min_stock, 
+            quantity:row.quantity,
+            price: row.price, });
+        });
+        let content = JSON.stringify(data);
+        res.send(content);
+      });
+    } catch (err) {
+      console.log(err.message);
+      res.status(467);
+      res.send(`{"code":467, "status":"${err.message}"}`);
+    }
+}
 export const getAllStockwithBalance = async(req,res) => {
     res.set('content-type', 'application/json');
     const sql = 'SELECT * FROM stock WHERE quantity > 0';
