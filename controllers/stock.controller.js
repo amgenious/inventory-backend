@@ -339,9 +339,9 @@ export const updateStockQuantity = async (req,res)=>{
 export const addStockHistory = async(req,res) => {
    res.set('content-type', 'application/json');
     const {name,prevQuantity,Issue, Receipt,newQuantity} = req.body;
-    const sql = 'INSERT INTO stockhistory (name,prevQuantity,Issue,Receipt,newQuantity) VALUES (?, ?, ?, ?, ?)';
+    const sql = 'INSERT INTO stockhistory (name,prevQuantity,Issue,Receipt,newQuantity,referencenumber) VALUES (?, ?, ?, ?, ?,?)';
     let newId;
-    const params = [name,prevQuantity,Issue,Receipt,newQuantity];
+    const params = [name,prevQuantity,Issue,Receipt,newQuantity,referencenumber];
     try {
       DB.run(sql, params, function (err) {
         if (err) throw err;

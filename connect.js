@@ -107,6 +107,7 @@ let sqlStatements = [
     );`,
     `CREATE TABLE IF NOT EXISTS stockhistory (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    referencenumber TEXT NOT NULL,
     name TEXT NOT NULL,
     prevQuantity REAL DEFAULT 0,
     addedQuantity REAL DEFAULT 0,
